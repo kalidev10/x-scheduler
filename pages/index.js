@@ -39,12 +39,24 @@ const postData = async (url, data) => {
 // Usage example
 const handleAuth = async () => {
   try {
-    const result = await postData('/api/auth', {
-      callbackUrl: window.location.origin
+    const response = await fetch('/api/auth', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({}),
     });
-    window.location.href = result.url;
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to connect');
+    }
+
+    const { url } = await response.json();
+    window.location.href = url;
   } catch (error) {
-    alert('Authentication failed: ' + error.message);
+    console.error('Connection error:', error);
+    alert(`Connection failed: ${error.message}`);
   }
 };
 
