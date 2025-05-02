@@ -1,6 +1,53 @@
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
 
+// For GET requests
+const fetchPosts = async () => {
+  try {
+    const response = await fetch('/api/schedule');
+    if (!response.ok) throw new Error('Network response was not ok');
+    return await response.json();
+  } catch (error) {
+    console.error('Error:', error);
+    return [];
+  }
+};
+
+// For POST requests
+const postData = async (url, data) => {
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+    
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(text || 'Request failed');
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error:', error);
+    throw error;
+  }
+};
+
+// Usage example
+const handleAuth = async () => {
+  try {
+    const result = await postData('/api/auth', {
+      callbackUrl: window.location.origin
+    });
+    window.location.href = result.url;
+  } catch (error) {
+    alert('Authentication failed: ' + error.message);
+  }
+};
+
 export default function Home() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [posts, setPosts] = useState([]);
